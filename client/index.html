@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landmark Creator</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h2>Landmark Management System</h2>
+    <div id="map"></div>
+
+    <div class="button-container">
+        <button onclick="activateAddLandmark()">Add Landmark</button>
+        <button onclick="activateAddNote()">Add Visit Notes</button>
+        <button onclick="showVisitedLandmarks()">Show Landmarks</button>
+        <button onclick="activateCreatePlan()">Create Visiting Plan</button>
+    </div>
+
+    <div id="planForm" style="display: none; margin-top: 20px;">
+        <h3>Create Visiting Plan</h3>
+        <input type="text" id="planName" placeholder="Plan Name" required><br><br>
+        <button onclick="saveVisitingPlan()">Save Visiting Plan</button>
+    </div>
+    
+
+    <div id="landmarkForm" style="display:none; margin-top: 20px;">
+        <h3>Add New Landmark</h3>
+        <input type="text" id="landmarkName" placeholder="Landmark Name" required><br><br>
+        <label for="landmarkCategory">Category:</label>
+        <select id="landmarkCategory">
+            <option value="Historical">Historical</option>
+            <option value="Natural">Natural</option>
+            <option value="Cultural">Cultural</option>
+        </select><br><br>
+        <button onclick="addLandmark()">Save Landmark</button>
+    </div>
+
+    <div id="noteForm" style="display:none; margin-top: 20px;">
+        <h3>Add Visit Notes</h3>
+        <label for="landmarkSelect">Select Landmark:</label>
+        <select id="landmarkSelect" required>
+            <!-- Options will be populated dynamically -->
+        </select><br><br>
+
+        <label for="visitorName">Visitor Name:</label>
+        <input type="text" id="visitorName" placeholder="Your Name" required><br><br>
+
+        <label for="visitedDate">Visit Date:</label>
+        <input type="date" id="visitedDate" required><br><br>
+
+        <label for="noteText">Notes:</label><br>
+        <textarea id="noteText" placeholder="Write your visit notes here..." rows="4" cols="50"></textarea><br><br>
+        
+        <button onclick="addNotes()">Save Visit</button>
+    </div>
+
+    <div id="visitedSection" style="display: none;">
+        <h3>Saved Landmarks</h3>
+    
+        <div class="compact-filter">
+            <select id="landmarkFilter" onchange="filterLandmarks()">
+                <option value="all">Tüm Landmark'lar</option>
+                <option value="visited">Ziyaret Edilenler</option>
+                <option value="not-visited">Ziyaret Edilmeyenler</option>
+            </select>
+            
+            <select id="categoryFilter" onchange="filterLandmarks()">
+                <option value="all">Tüm Kategoriler</option>
+                <option value="Historical">Tarihî</option>
+                <option value="Natural">Doğal</option>
+                <option value="Cultural">Kültürel</option>
+            </select>
+        </div>
+        
+        <ul id="visitedList"></ul>
+    </div>
+    
+    <h3>Selected Landmarks</h3>
+    <ul id="landmarkList"></ul>
+    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="./script.js"></script>
+</body>
+</html>

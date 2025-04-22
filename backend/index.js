@@ -1,0 +1,187 @@
+// import express from "express"  bunu kullanmak istersek package jsona type: module eklemeliyiz
+const express = require('express')
+const db = require("./config/db")
+const cors = require("cors")
+
+const app = express()
+app.use(express.json())
+app.use(cors());
+
+
+app.get("/", (req, res) =>{
+    res.send("hello world")
+})
+
+
+
+
+app.post("/landmarks/adding", (req,res)=>{
+    console.log("Gelen veri:", req.body);
+    const lat = parseFloat(req.body.lat);
+    const lng = parseFloat(req.body.lng);
+    const q = " INSERT INTO landmarks (`lat`,`lng`,`name`,  `category`) VALUES (?)"
+    // const values = ["title1", "desc1", "cover1"]
+    const values = [
+        lat,
+        lng,
+        req.body.name,
+        req.body.category
+    ]
+
+    db.query(q, [values], (err,data)=>{
+        if(err) return res.json({error: err.message})
+        return res.json({message:"landmark has been added"})
+    })
+})
+
+app.get("/landmarks", (req,res)=>{
+    const q = "SELECT * FROM landmarks"
+    db.query(q, (err, data)=>{
+        if(err) return res.json("err")
+        return res.json(data)
+    })
+})
+
+
+app.get("/landmarks/:id", (req,res) => {
+    const {id} = req.params;
+    const q = "SELECT * FROM landmarks WHERE id = ?"
+
+    db.query(q, [id],(err,data) =>{
+        if(err) return res.json(err);
+        if(data.length === 0) return res.status(404).json({message: "Landmark not found"});
+        return res.json(data[0]);
+    })
+
+});
+
+app.put("/landmarks/:id", (req,res)=>{
+    const landmarkId = req.params.id;
+
+    const q = "UPDATE landmarks SET `name` = ?, `note` = ?, `category`= ?  WHERE id = ?"
+
+    const values = [
+        req.body.name,
+        req.body.note,
+        req.body.category
+    ]
+
+    db.query(q, [...values, landmarkId], (err,data)=>{
+        if(err) return res.json(err);
+        return res.json("Landmarks has been updated successfully")
+
+    })
+
+});
+
+app.delete("/landmarks/:id", (req,res)=>{
+    const landmarkId = req.params.id;
+
+    const q = "DELETE FROM landmarks WHERE id = ?"
+
+    db.query(q, [landmarkId], (err,data)=>{
+        if(err) return res.json(err);
+        return res.json("Landmarks has been deleted successfully")
+
+    })
+
+});
+
+// VISITED LANDMARKS   
+
+app.post("/visited_landmarks/notes", (req,res)=>{  
+    const {landmark_id, visited_date, visitor_name, note} = req.body;
+
+    if (!landmark_id || !visited_date || !visitor_name) {
+        return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const updateNoteQuery = `
+        UPDATE landmarks SET note = ? WHERE id = ?
+    `;
+
+    
+    const values = [
+        landmark_id, 
+        visited_date, 
+        visitor_name
+    ]
+    
+    db.query(updateNoteQuery, [note, landmark_id], (err,data)=>{
+        if(err) return res.json({error: err.message})
+            
+            const insert_visited_query = " INSERT INTO visited_landmarks (landmark_id, visited_date, visitor_name) VALUES (?,?,?)"
+            
+            db.query(insert_visited_query, [landmark_id, visited_date, visitor_name], (err2, data2)=>{
+                if(err2) return res.json({error: err2.message})
+                return res.json({message:"landmark has been added"})
+        })
+    })
+})
+
+app.get("/visited_landmarks", (req,res)=>{
+    const q = "SELECT lm.lat, lm.lng, lm.note ,vlm.landmark_id, vlm.visited_date, vlm.visitor_name FROM visited_landmarks as vlm JOIN landmarks as lm ON lm.id = vlm.landmark_id"
+    db.query(q, (err, data)=>{
+        if(err) return res.json({error: err.message})
+        return res.json(data)
+    })
+})
+
+
+app.get("/visited_landmarks/:id", (req,res) => {
+    const {id} = req.params;
+
+    const q = "SELECT lm.lat, lm.lng, lm.note ,vlm.landmark_id, vlm.visited_date, vlm.visitor_name FROM visited_landmarks as vlm JOIN landmarks as lm ON lm.id = vlm.landmark_id WHERE vlm.id = ?"
+
+
+    db.query(q, [id],(err,data) =>{
+        if(err) return res.json(err);
+        if(data.length === 0) return res.status(404).json({message: "Landmark not found"});
+        return res.json(data[0]);
+    })
+
+});
+
+
+// visiting plan
+
+app.post("/create_plan", (req,res)=>{
+    const { plan_name, landmarks } = req.body;
+
+    if (!plan_name || !Array.isArray(landmarks) || landmarks.length === 0) {
+        return res.status(400).json({ error: "Invalid data." });
+    }
+
+    const insertPlan = "INSERT INTO visiting_plans (name) VALUES (?)";
+    db.query(insertPlan, [plan_name], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+
+        const planId = result.insertId;
+
+        const insertLandmarks = `
+            INSERT INTO landmarks_of_plan
+            (visiting_plan_id, lat, lng, name, note, category)
+            VALUES ?
+        `;
+
+        const landmarkValues = landmarks.map(lm => [
+            planId,
+            parseFloat(lm.latitude),
+            parseFloat(lm.longitude),
+            lm.name,
+            lm.note,
+            lm.category
+        ]);
+
+        db.query(insertLandmarks, [landmarkValues], (err, data) => {
+            if (err) return res.status(500).json({ error: err.message });
+            return res.json({ message: "Visiting plan saved successfully." });
+        });
+    });
+
+})
+
+app.listen(3000, ()=>{
+    console.log("connected to backend")
+
+})
