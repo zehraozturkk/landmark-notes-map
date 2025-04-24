@@ -359,14 +359,14 @@ function showVisitedLandmarks() {
         fetch('http://localhost:3000/visited_landmarks').then(res => res.json())
     ])
     .then(([landmarksData, visitedData]) => {
-        console.log("Tüm landmark verileri:", landmarksData);
-        console.log("Ziyaret edilen landmark verileri:", visitedData);
+        console.log("All Landmarks:", landmarksData);
+        console.log("Visit Landmarks:", visitedData);
         
         allLandmarks = landmarksData;
         
         // Ziyaret edilen landmark ID'lerini sakla
         visitedLandmarkIds = visitedData.map(item => item.landmark_id);
-        console.log("Ziyaret edilen landmark ID'leri:", visitedLandmarkIds);
+        console.log("Id of visited landmarks:", visitedLandmarkIds);
         
         // Görünürlüğü ayarla
         visitedSection.style.display = "block";
@@ -375,8 +375,8 @@ function showVisitedLandmarks() {
         filterLandmarks();
     })
     .catch(err => {
-        console.error("Landmark verileri alınırken hata:", err);
-        alert("Landmark verileri alınamadı: " + err.message);
+        console.error("Error while retrieving visit history:", err);
+        alert("Landmark data could not be retrieved: " + err.message);
     });
 }
 
@@ -428,9 +428,15 @@ function filterLandmarks() {
         return;
     }
     
+    // Create bounds to fit all filtered landmarks
+    const bounds = L.latLngBounds();
+    
     // Filtrelenmiş landmark'ları göster
     filteredLandmarks.forEach((item) => {
         const isVisited = visitedLandmarkIds.includes(item.id);
+        
+        // Add to bounds
+        bounds.extend([parseFloat(item.lat), parseFloat(item.lng)]);
         
         // Liste elemanı oluştur
         const li = document.createElement("li");
@@ -455,19 +461,26 @@ function filterLandmarks() {
         
         // Güncelleme butonu
         const updateBtn = document.createElement("button");
-        updateBtn.textContent = "Güncelle";
+        updateBtn.textContent = "Update";
         updateBtn.className = "update-btn";
         updateBtn.onclick = function() { showUpdateForm(item); };
         
         // Silme butonu
         const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "Sil";
+        deleteBtn.textContent = "Delete";
         deleteBtn.className = "delete-btn";
         deleteBtn.onclick = function() { deleteLandmark(item.id); };
+        
+        // Ziyaret geçmişi butonu
+        const historyBtn = document.createElement("button");
+        historyBtn.textContent = "Visit History";
+        historyBtn.className = "history-btn";
+        historyBtn.onclick = function() { viewVisitHistory(item.id); };
         
         // Butonları konteynere ekle
         buttonDiv.appendChild(updateBtn);
         buttonDiv.appendChild(deleteBtn);
+        buttonDiv.appendChild(historyBtn);
         
         // İçerik ve butonları liste elemanına ekle
         li.appendChild(contentDiv);
@@ -490,12 +503,21 @@ function filterLandmarks() {
             .bindPopup(`
                 <strong>${item.name}</strong><br>
                 ${item.note ? 'Not: ' + item.note + '<br>' : ''}
-                <button class="popup-btn" onclick="showUpdateForm(${JSON.stringify(item).replace(/"/g, '&quot;')})">Güncelle</button>
-                <button class="popup-btn popup-delete" onclick="deleteLandmark(${item.id})">Sil</button>
+                <button class="popup-btn" onclick="showUpdateForm(${JSON.stringify(item).replace(/"/g, '&quot;')})">Update</button>
+                <button class="popup-btn popup-delete" onclick="deleteLandmark(${item.id})">Delete</button>
+                <button class="popup-btn popup-history" onclick="viewVisitHistory(${item.id})">Visit History</button>
             `);
         
         visitedMarkers.push(marker);
     });
+    
+    // Fit map to show all filtered landmarks if there are any
+    if (filteredLandmarks.length > 0) {
+        map.fitBounds(bounds, {
+            padding: [50, 50],
+            maxZoom: 12
+        });
+    }
 }
 
 function addNotes() {
@@ -584,4 +606,229 @@ function updateLandmarkSelect() {
         option.textContent = `${landmark.name} (${landmark.lat}, ${landmark.lng})`;
         select.appendChild(option);
     });
+}
+// Add this function to handle landmark search by ID
+function searchLandmarkById() {
+    const landmarkId = document.getElementById("landmarkIdSearch").value;
+    const searchResult = document.getElementById("searchResult");
+    
+    if (!landmarkId || landmarkId <= 0) {
+        alert("Lütfen geçerli bir landmark ID girin");
+        return;
+    }
+    
+    // Önceki sonuçları temizle
+    searchResult.innerHTML = "";
+    searchResult.style.display = "none";
+    
+    // Önceki arama işaretçilerini temizle
+    if (window.searchMarker) {
+        map.removeLayer(window.searchMarker);
+        window.searchMarker = null;
+    }
+    
+    // Landmark'ı ID'ye göre getir
+    fetch(`http://localhost:3000/landmarks/${landmarkId}`)
+        .then(res => {
+            if (!res.ok) {
+                throw new Error("Landmark bulunamadı");
+            }
+            return res.json();
+        })
+        .then(data => {
+            console.log("Bulunan landmark:", data);
+            
+            // Sonucu göster
+            searchResult.style.display = "block";
+            searchResult.innerHTML = `
+                <div class="search-result-item">
+                    <div class="search-result-header">
+                        <h4>${data.name}</h4>
+                        <button class="close-btn" onclick="closeSearchResult()">✕</button>
+                    </div>
+                    <p>ID: ${data.id}</p>
+                    <p>Kategori: ${data.category}</p>
+                    <p>Koordinatlar: (${data.lat}, ${data.lng})</p>
+                    ${data.note ? `<p>Not: ${data.note}</p>` : ''}
+                    <div class="landmark-buttons">
+                        <button class="update-btn" onclick="showUpdateForm(${JSON.stringify(data).replace(/"/g, '&quot;')})">Update</button>
+                        <button class="delete-btn" onclick="deleteLandmark(${data.id})">Delete</button>
+                        <button class="goto-btn" onclick="focusOnLandmark(${data.lat}, ${data.lng})">Go to landmark</button>
+                        <button class="history-btn" onclick="viewVisitHistory(${data.id})">visited History</button>
+                    </div>
+                </div>
+            `;
+            
+            // Haritaya işaretçi ekle
+            const markerOptions = {
+                icon: L.divIcon({
+                    className: 'search-result-marker',
+                    html: '<div style="background-color: #1890ff; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white;"></div>',
+                    iconSize: [16, 16],
+                    iconAnchor: [8, 8]
+                })
+            };
+            
+            window.searchMarker = L.marker([parseFloat(data.lat), parseFloat(data.lng)], markerOptions)
+                .addTo(map)
+                .bindPopup(`
+                    <strong>${data.name}</strong><br>
+                    ${data.note ? 'Not: ' + data.note + '<br>' : ''}
+                    <button class="popup-btn" onclick="showUpdateForm(${JSON.stringify(data).replace(/"/g, '&quot;')})">Update</button>
+                    <button class="popup-btn popup-delete" onclick="deleteLandmark(${data.id})">Delete</button>
+                    <button class="popup-btn popup-history" onclick="viewVisitHistory(${data.id})">Visit History</button>
+                `);
+            
+            // Landmark konumuna git
+            map.flyTo([parseFloat(data.lat), parseFloat(data.lng)], 12);
+            window.searchMarker.openPopup();
+        })
+        .catch(err => {
+            console.error("Landmark aranırken hata:", err);
+            searchResult.style.display = "block";
+            searchResult.innerHTML = `
+                <div class="search-error">
+                    <div class="search-result-header">
+                        <p>Hata</p>
+                        <button class="close-btn" onclick="closeSearchResult()">✕</button>
+                    </div>
+                    <p>${err.message}</p>
+                </div>
+            `;
+        });
+}
+
+// Function to focus on a landmark
+function focusOnLandmark(lat, lng) {
+    map.flyTo([parseFloat(lat), parseFloat(lng)], 12);
+    if (window.searchMarker) {
+        window.searchMarker.openPopup();
+    }
+}
+
+// Function to close search result
+function closeSearchResult() {
+    const searchResult = document.getElementById("searchResult");
+    searchResult.style.display = "none";
+    searchResult.innerHTML = "";
+    
+    // Clear the search input
+    document.getElementById("landmarkIdSearch").value = "";
+    
+    // Remove the search marker from the map
+    if (window.searchMarker) {
+        map.removeLayer(window.searchMarker);
+        window.searchMarker = null;
+    }
+    
+    // Zoom out to show a wider view
+    map.setView([20, 0], 2); // Reset to default global view
+    
+    // If landmarks are visible, fit the map to show all of them
+    if (visitedMarkers.length > 0) {
+        const bounds = L.latLngBounds();
+        visitedMarkers.forEach(marker => {
+            bounds.extend(marker.getLatLng());
+        });
+        map.fitBounds(bounds, {
+            padding: [50, 50],
+            maxZoom: 12
+        });
+    }
+}
+
+// Ziyaret geçmişini görüntüleme fonksiyonu
+function viewVisitHistory(landmarkId) {
+    // Ziyaret geçmişi konteynerini temizle (eğer varsa)
+    closeVisitHistory();
+    
+    // Yeni bir konteyner oluştur
+    const historyContainer = document.createElement("div");
+    historyContainer.id = "visitHistoryContainer";
+    historyContainer.className = "visit-history-container";
+    
+    // Yükleniyor göstergesi ekle
+    historyContainer.innerHTML = `
+        <div class="visit-history-header">
+            <h3>Visit History</h3>
+            <button class="close-btn" onclick="closeVisitHistory()">✕</button>
+        </div>
+        <div class="loading-indicator">loading..</div>
+    `;
+    
+    document.body.appendChild(historyContainer);
+    
+    // Ziyaret geçmişini sunucudan al
+    fetch(`http://localhost:3000/visited_landmarks/${landmarkId}`)
+        .then(res => {
+            if (!res.ok) {
+                throw new Error("there is no visit history");
+            }
+            return res.json();
+        })
+        .then(data => {
+            console.log("Visit History:", data);
+            
+            // Geçmiş konteynerinin içeriğini oluştur
+            let content = `
+                <div class="visit-history-header">
+                    <h3>Visit History: ${data.landmark_name || 'Landmark' + landmarkId}</h3>
+                    <button class="close-btn" onclick="closeVisitHistory()">✕</button>
+                </div>
+            `;
+            
+            if (data.visits.length === 0) {
+                content += `<p class="no-visits">No visit history found for this landmark.</p>`;
+            } else {
+                content += `
+                    <p class="visit-count">Total visit: ${data.total_visits}</p>
+                    <table class="visit-table">
+                        <thead>
+                            <tr>
+                                <th>Visitor</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                // Her ziyareti tabloya ekle
+                data.visits.forEach(visit => {
+                    // Tarihi uygun formata çevir
+                    const visitDate = new Date(visit.visited_date).toLocaleDateString('tr-TR');
+                    
+                    content += `
+                        <tr>
+                            <td>${visit.visitor_name}</td>
+                            <td>${visitDate}</td>
+                        </tr>
+                    `;
+                });
+                
+                content += `
+                        </tbody>
+                    </table>
+                `;
+            }
+            
+            historyContainer.innerHTML = content;
+        })
+        .catch(err => {
+            console.error("Error while retrieving visit history:", err);
+            historyContainer.innerHTML = `
+                <div class="visit-history-header">
+                    <h3>Visit History</h3>
+                    <button class="close-btn" onclick="closeVisitHistory()">✕</button>
+                </div>
+                <p class="error-message">Error while retrieving visit history: ${err.message}</p>
+            `;
+        });
+}
+
+// Ziyaret geçmişi görünümünü kapatma fonksiyonu
+function closeVisitHistory() {
+    const historyContainer = document.getElementById("visitHistoryContainer");
+    if (historyContainer) {
+        historyContainer.remove();
+    }
 }

@@ -131,13 +131,17 @@ app.get("/visited_landmarks", (req,res)=>{
 app.get("/visited_landmarks/:id", (req,res) => {
     const {id} = req.params;
 
-    const q = "SELECT lm.lat, lm.lng, lm.note ,vlm.landmark_id, vlm.visited_date, vlm.visitor_name FROM visited_landmarks as vlm JOIN landmarks as lm ON lm.id = vlm.landmark_id WHERE vlm.id = ?"
+    const q = "SELECT lm.lat, lm.lng, lm.note ,vlm.landmark_id, vlm.visited_date, vlm.visitor_name FROM visited_landmarks as vlm JOIN landmarks as lm ON lm.id = vlm.landmark_id WHERE lm.id = ?"
 
 
     db.query(q, [id],(err,data) =>{
         if(err) return res.json(err);
         if(data.length === 0) return res.status(404).json({message: "Landmark not found"});
-        return res.json(data[0]);
+        return res.json({
+            landmark_name: data[0].landmark_name,
+            total_visits: data.length,
+            visits: data
+        });
     })
 
 });

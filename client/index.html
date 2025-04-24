@@ -11,6 +11,16 @@
     <h2>Landmark Management System</h2>
     <div id="map"></div>
 
+    <!-- Search Section -->
+    <div class="search-container">
+        <h3>Search Landmark by ID</h3>
+        <div class="search-input">
+            <input type="number" id="landmarkIdSearch" placeholder="Enter Landmark ID" min="1">
+            <button onclick="searchLandmarkById()">Search</button>
+        </div>
+        <div id="searchResult" style="display: none;"></div>
+    </div>
+
     <div class="button-container">
         <button onclick="activateAddLandmark()">Add Landmark</button>
         <button onclick="activateAddNote()">Add Visit Notes</button>
@@ -61,23 +71,22 @@
     
         <div class="compact-filter">
             <select id="landmarkFilter" onchange="filterLandmarks()">
-                <option value="all">Tüm Landmark'lar</option>
-                <option value="visited">Ziyaret Edilenler</option>
-                <option value="not-visited">Ziyaret Edilmeyenler</option>
+                <option value="all">All Landmarks</option>
+                <option value="visited">Visited Landmarks</option>
+                <option value="not-visited">Not Visited Landmarks</option>
             </select>
             
             <select id="categoryFilter" onchange="filterLandmarks()">
-                <option value="all">Tüm Kategoriler</option>
-                <option value="Historical">Tarihî</option>
-                <option value="Natural">Doğal</option>
-                <option value="Cultural">Kültürel</option>
+                <option value="all">All Categories</option>
+                <option value="Historical">Historical</option>
+                <option value="Natural">Natural</option>
+                <option value="Cultural">Cultural</option>
             </select>
         </div>
         
         <ul id="visitedList"></ul>
     </div>
     
-    <h3>Selected Landmarks</h3>
     <ul id="landmarkList"></ul>
     
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
