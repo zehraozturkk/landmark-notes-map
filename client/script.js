@@ -157,7 +157,7 @@ function saveVisitingPlan() {
     }
     
     // Send to server
-    fetch('http://localhost:3000/create_plan', {
+    fetch(`${import.meta.env.VITE_JS_APP_BACKEND_BASEURL}/create_plan`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -290,7 +290,7 @@ function submitUpdate(id) {
         return;
     }
     
-    fetch(`http://localhost:3000/landmarks/${id}`, {
+    fetch(`${import.meta.env.VITE_JS_APP_BACKEND_BASEURL}/landmarks/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -318,7 +318,7 @@ function deleteLandmark(id) {
         return;
     }
     
-    fetch(`http://localhost:3000/landmarks/${id}`, {
+    fetch(`${import.meta.env.VITE_JS_APP_BACKEND_BASEURL}/landmarks/${id}`, {
         method: 'DELETE'
     })
     .then(res => res.json())
@@ -356,7 +356,7 @@ function addLandmark() {
 
     const user = JSON.parse(localStorage.getItem("user"));
     
-    fetch('http://localhost:3000/landmarks/adding', {
+    fetch(`${import.meta.env.VITE_JS_APP_BACKEND_BASEURL}/landmarks/adding`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -394,14 +394,14 @@ function showVisitedLandmarks() {
 
     // Fallback to the original method if the new endpoint fails
     // First, try to get all landmarks
-    fetch('http://localhost:3000/landmarks')
+    fetch(`${import.meta.env.VITE_JS_APP_BACKEND_BASEURL}/landmarks`)
         .then(res => res.json())
         .then(landmarksData => {
             console.log("All Landmarks:", landmarksData);
             allLandmarks = landmarksData;
             
             // Then try to get visited landmarks using the original endpoint
-            return fetch('http://localhost:3000/visited_landmarks')
+            return fetch(`${import.meta.env.VITE_JS_APP_BACKEND_BASEURL}/visited_landmarks`)
                 .then(res => res.json())
                 .then(visitedData => {
                     console.log("Visit Landmarks:", visitedData);
@@ -581,7 +581,7 @@ function addNotes() {
         return;
     }
 
-    fetch('http://localhost:3000/visited_landmarks/notes', {
+    fetch(`${import.meta.env.VITE_JS_APP_BACKEND_BASEURL}/visited_landmarks/notes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -609,7 +609,7 @@ function sendLandmarks() {
         return;
     }
 
-    fetch('http://localhost:3000/books', { // This endpoint doesn't match your backend
+    fetch(`${import.meta.env.VITE_JS_APP_BACKEND_BASEURL}/books`, { // This endpoint doesn't match your backend
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -624,7 +624,7 @@ function sendLandmarks() {
 function fetchSavedLandmarks() {
     console.log("Fetching saved landmarks...");
     
-    fetch('http://localhost:3000/landmarks')
+    fetch(`${import.meta.env.VITE_JS_APP_BACKEND_BASEURL}/landmarks`)
         .then(res => res.json())
         .then(data => {
             savedLandmarks = data;
@@ -677,7 +677,7 @@ function searchLandmarkById() {
     }
     
     // Landmark'ı ID'ye göre getir
-    fetch(`http://localhost:3000/landmarks/${landmarkId}`)
+    fetch(`${import.meta.env.VITE_JS_APP_BACKEND_BASEURL}/landmarks/${landmarkId}`)
         .then(res => {
             if (!res.ok) {
                 throw new Error("Landmark bulunamadı");
@@ -808,7 +808,7 @@ function viewVisitHistory(landmarkId) {
     document.body.appendChild(historyContainer);
     
     // Ziyaret geçmişini sunucudan al
-    fetch(`http://localhost:3000/visited_landmarks/${landmarkId}`)
+    fetch(`${import.meta.env.VITE_JS_APP_BACKEND_BASEURL}/visited_landmarks/${landmarkId}`)
         .then(res => {
             if (!res.ok) {
                 throw new Error("there is no visit history");

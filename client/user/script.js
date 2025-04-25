@@ -48,7 +48,7 @@ loginForm.addEventListener('submit', async (e) => {
     const password = document.getElementById('login-password').value;
 
     try {
-        const response = await fetch('http://localhost:3000/user/login', {
+        const response = await fetch(`${import.meta.env.VITE_JS_APP_BACKEND_BASEURL}/user/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })
@@ -79,7 +79,7 @@ registerForm.addEventListener('submit', async (e) => {
     const password = document.getElementById('register-password').value;
 
     try {
-        const response = await fetch('http://localhost:3000/user/register', {
+        const response = await fetch(`${import.meta.env.VITE_JS_APP_BACKEND_BASEURL}/user/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name, surname, email, password })
