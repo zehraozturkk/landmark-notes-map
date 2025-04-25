@@ -67,12 +67,25 @@ app.post("/login", (req,res)=>{
     });
 })
 
+app.post("/logout", (req, res) => {
+    // Since authentication is handled client-side with localStorage,
+    // we just return a success message
+    res.status(200).json({ message: "User has been logged out" });
+});
 
+
+app.get("/:id", (req, res) => {
+    const userId = req.params.id;
+    
+    const q = "SELECT id, name, surname, email FROM users WHERE id = ?";
+    
+    db.query(q, [userId], (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (results.length === 0) return res.status(404).json({ error: "User not found" });
+        
+        // Return user data without password
+        return res.status(200).json(results[0]);
+    });
+});
 
 module.exports = app;
-exports.logout = (req, res) => {
-    res.clearCookie("accessToken",{
-        secure:true,
-        sameSite:"none"
-    }).status(200).json("user has been logout")
-};

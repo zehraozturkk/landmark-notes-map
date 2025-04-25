@@ -9,6 +9,9 @@
 </head>
 <body>
     <h2>Landmark Management System</h2>
+    <div id="user-info" class="user-info">
+        <!-- User info will be injected here -->
+    </div>
     <div id="map"></div>
 
     <!-- Search Section -->
@@ -26,6 +29,7 @@
         <button onclick="activateAddNote()">Add Visit Notes</button>
         <button onclick="showVisitedLandmarks()">Show Landmarks</button>
         <button onclick="activateCreatePlan()">Create Visiting Plan</button>
+        <button onclick="logoutUser()" class="logout-btn">Logout</button>
     </div>
 
     <div id="planForm" style="display: none; margin-top: 20px;">
@@ -53,12 +57,6 @@
         <select id="landmarkSelect" required>
             <!-- Options will be populated dynamically -->
         </select><br><br>
-
-        <label for="visitorName">Visitor Name:</label>
-        <input type="text" id="visitorName" placeholder="Your Name" required><br><br>
-
-        <label for="visitedDate">Visit Date:</label>
-        <input type="date" id="visitedDate" required><br><br>
 
         <label for="noteText">Notes:</label><br>
         <textarea id="noteText" placeholder="Write your visit notes here..." rows="4" cols="50"></textarea><br><br>

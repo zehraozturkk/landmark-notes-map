@@ -103,28 +103,76 @@ app.delete("/landmarks/:id", (req,res)=>{
 
 // VISITED LANDMARKS   
 
-app.post("/visited_landmarks/notes", (req,res)=>{  
-    const {landmark_id, visited_date, visitor_name, note} = req.body;
+// app.post("/visited_landmarks/notes", (req,res)=>{  
+//     const {landmark_id, visited_date, visitor_name, note} = req.body;
 
-    if (!landmark_id || !visited_date || !visitor_name) {
+//     if (!landmark_id || !visited_date || !visitor_name) {
+//         return res.status(400).json({ error: "Missing required fields" });
+//     }
+
+//     const updateNoteQuery = `
+//         UPDATE landmarks SET note = ? WHERE id = ?
+//     `;
+
+    
+//     db.query(updateNoteQuery, [note, landmark_id], (err,data)=>{
+//         if(err) return res.json({error: err.message})
+            
+//             const insert_visited_query = " INSERT INTO visited_landmarks (landmark_id, visited_date, visitor_name) VALUES (?,?,?)"
+            
+//             db.query(insert_visited_query, [landmark_id, visited_date, visitor_name], (err2, data2)=>{
+//                 if(err2) return res.json({error: err2.message})
+//                 return res.json({message:"landmark has been added"})
+//         })
+//     })
+// })
+
+app.post("/visited_landmarks/notes", (req,res)=>{  
+    const {landmark_id, user_id, note} = req.body;
+    const visited_date = new Date(); // Bugünün tarihini otomatik olarak al
+
+    if (!landmark_id || !user_id) {
         return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const updateNoteQuery = `
-        UPDATE landmarks SET note = ? WHERE id = ?
-    `;
-
+    // Önce kullanıcı adını al
+    const getUserQuery = "SELECT name, surname FROM users WHERE id = ?";
     
-    db.query(updateNoteQuery, [note, landmark_id], (err,data)=>{
-        if(err) return res.json({error: err.message})
+    db.query(getUserQuery, [user_id], (err, userData) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (userData.length === 0) return res.status(404).json({ error: "User not found" });
+        
+        const visitor_name = `${userData[0].name} ${userData[0].surname}`;
+        
+        // 1. Landmark tablosunda notu güncelle
+        const updateNoteQuery = `
+            UPDATE landmarks SET note = ? WHERE id = ?
+        `;
+        
+        db.query(updateNoteQuery, [note, landmark_id], (err, data) => {
+            if (err) return res.json({ error: err.message });
             
-            const insert_visited_query = " INSERT INTO visited_landmarks (landmark_id, visited_date, visitor_name) VALUES (?,?,?)"
+            // 2. Ziyaret kaydını ekle
+            const insertVisitQuery = "INSERT INTO visited_landmarks (landmark_id, visited_date, visitor_name) VALUES (?, ?, ?)";
             
-            db.query(insert_visited_query, [landmark_id, visited_date, visitor_name], (err2, data2)=>{
-                if(err2) return res.json({error: err2.message})
-                return res.json({message:"landmark has been added"})
-        })
-    })
+            db.query(insertVisitQuery, [landmark_id, visited_date, visitor_name], (err2, data2) => {
+                if (err2) return res.json({ error: err2.message });
+                
+                // 3. user_landmarks tablosunda visited değerini true yap
+                const updateUserLandmarkQuery = `
+                    UPDATE user_landmarks 
+                    SET visited = TRUE 
+                    WHERE user_id = ? AND landmark_id = ?
+                `;
+                
+                db.query(updateUserLandmarkQuery, [user_id, landmark_id], (err3, data3) => {
+                    if (err3) return res.json({ error: err3.message });
+                    
+                    return res.json({ message: "Note added and landmark marked as visited" });
+                });
+            });
+        });
+    });
 })
 
 app.get("/visited_landmarks", (req,res)=>{

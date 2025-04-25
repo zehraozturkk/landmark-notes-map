@@ -2,14 +2,14 @@
 const express = require('express')
 const db = require("./config/db")
 const cors = require("cors")
+const user_operations = require("./user-operations")
+const landmarks_operations = require("./landmark-operations")
 
 const app = express()
 app.use(express.json())
 app.use(cors());
 
-const user_operations = require("./user-operations")
-const landmarks_operations = require("./landmark-operations")
-
+app.use(express.static('client'));
 
 app.get("/", (req, res) =>{
     res.send("hello world")

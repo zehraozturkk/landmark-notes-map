@@ -1,8 +1,24 @@
 // Initialize map
 var map = L.map('map').setView([20, 0], 2); // Default global view
 window.onload = () => {
-    fetchSavedLandmarks();
+    // Kullanıcı giriş kontrolü
+    if (checkUserLogin()) {
+        fetchSavedLandmarks();
+        displayUserInfo();
+    }
 };
+
+// Kullanıcı giriş kontrolü
+function checkUserLogin() {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user || !user.id) {
+        // Kullanıcı giriş yapmamışsa login sayfasına yönlendir
+        alert("Lütfen giriş yapın");
+        window.location.href = "/"; // Login sayfasına yönlendir
+        return false;
+    }
+    return true;
+}
 
 // Add OpenStreetMap tile layer
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -108,12 +124,16 @@ function savePlanPoint() {
 }
 
 function activateAddLandmark() {
+    if (!checkUserLogin()) return;
+    
     resetSelection();
     mapClickMode = "addLandmark";
     alert("Click on the map to select a location for your landmark.");
 }
 
 function activateCreatePlan() {
+    if (!checkUserLogin()) return;
+    
     resetSelection();
     mapClickMode = "addToPlan";
     currentPlanLandmarks = []; // Reset current plan
@@ -122,6 +142,8 @@ function activateCreatePlan() {
 }
 
 function saveVisitingPlan() {
+    if (!checkUserLogin()) return;
+    
     const planName = document.getElementById("planName").value;
     
     if (!planName) {
@@ -169,8 +191,13 @@ function saveVisitingPlan() {
 
 //*************** */ notes **************
 function activateAddNote() {
+    if (!checkUserLogin()) return;
+    
     resetSelection();
     fetchSavedLandmarks();
+    
+    // Visitor Name alanını kaldırıp doğrudan Note formunu göster
+    // Visitor name artık kullanıcının bilgilerinden otomatik alınacak
     document.getElementById("noteForm").style.display = "block";
 }
 
@@ -252,6 +279,8 @@ function showUpdateForm(landmark) {
 }
 
 function submitUpdate(id) {
+    if (!checkUserLogin()) return;
+    
     const name = document.getElementById("updateName").value;
     const note = document.getElementById("updateNote").value;
     const category = document.getElementById("updateCategory").value;
@@ -283,6 +312,8 @@ function submitUpdate(id) {
 }
 
 function deleteLandmark(id) {
+    if (!checkUserLogin()) return;
+    
     if (!confirm("Are you sure you want to delete this landmark?")) {
         return;
     }
@@ -308,6 +339,8 @@ function clearVisitedMarkers() {
 
 
 function addLandmark() {
+    if (!checkUserLogin()) return;
+    
     if (!selectedLandmark) {
         alert("Please select a location first.");
         return;
@@ -322,10 +355,7 @@ function addLandmark() {
     }
 
     const user = JSON.parse(localStorage.getItem("user"));
-    if (!user || !user.id) {
-        alert("Kullanıcı bilgisi bulunamadı. Lütfen tekrar giriş yapın.");
-        return;
-    }
+    
     fetch('http://localhost:3000/landmarks/adding', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -350,7 +380,10 @@ function addLandmark() {
 }
 
 function showVisitedLandmarks() {
+    if (!checkUserLogin()) return;
+    
     const visitedSection = document.getElementById("visitedSection");
+    const user = JSON.parse(localStorage.getItem("user"));
 
     // Eğer zaten görünürse, kapat ve işaretçileri kaldır
     if (visitedSection.style.display === "block") {
@@ -359,31 +392,35 @@ function showVisitedLandmarks() {
         return;
     }
 
-    // Önce tüm landmark'ları al
-    Promise.all([
-        fetch('http://localhost:3000/landmarks').then(res => res.json()),
-        fetch('http://localhost:3000/visited_landmarks').then(res => res.json())
-    ])
-    .then(([landmarksData, visitedData]) => {
-        console.log("All Landmarks:", landmarksData);
-        console.log("Visit Landmarks:", visitedData);
-        
-        allLandmarks = landmarksData;
-        
-        // Ziyaret edilen landmark ID'lerini sakla
-        visitedLandmarkIds = visitedData.map(item => item.landmark_id);
-        console.log("Id of visited landmarks:", visitedLandmarkIds);
-        
-        // Görünürlüğü ayarla
-        visitedSection.style.display = "block";
-        
-        // Filtreleme yap
-        filterLandmarks();
-    })
-    .catch(err => {
-        console.error("Error while retrieving visit history:", err);
-        alert("Landmark data could not be retrieved: " + err.message);
-    });
+    // Fallback to the original method if the new endpoint fails
+    // First, try to get all landmarks
+    fetch('http://localhost:3000/landmarks')
+        .then(res => res.json())
+        .then(landmarksData => {
+            console.log("All Landmarks:", landmarksData);
+            allLandmarks = landmarksData;
+            
+            // Then try to get visited landmarks using the original endpoint
+            return fetch('http://localhost:3000/visited_landmarks')
+                .then(res => res.json())
+                .then(visitedData => {
+                    console.log("Visit Landmarks:", visitedData);
+                    
+                    // Ziyaret edilen landmark ID'lerini sakla
+                    visitedLandmarkIds = visitedData.map(item => item.landmark_id);
+                    console.log("Id of visited landmarks:", visitedLandmarkIds);
+                    
+                    // Görünürlüğü ayarla
+                    visitedSection.style.display = "block";
+                    
+                    // Filtreleme yap
+                    filterLandmarks();
+                });
+        })
+        .catch(err => {
+            console.error("Error while retrieving landmark data:", err);
+            alert("Landmark data could not be retrieved: " + err.message);
+        });
 }
 
 // Yeni filtreleme fonksiyonu
@@ -445,7 +482,7 @@ function filterLandmarks() {
         bounds.extend([parseFloat(item.lat), parseFloat(item.lng)]);
         
         // Liste elemanı oluştur
-        const li = document.createElement("li");
+        const li = document.createElement('li');
         li.className = isVisited ? "landmark-visited" : "landmark-not-visited";
         
         // Ana içerik div'i
@@ -527,13 +564,20 @@ function filterLandmarks() {
 }
 
 function addNotes() {
+    if (!checkUserLogin()) return;
+    
     const landmark_id = document.getElementById("landmarkSelect").value;
-    const visitor_name = document.getElementById("visitorName").value;
     const note = document.getElementById("noteText").value;
-    const visited_date = document.getElementById("visitedDate").value;
-
-    if (!landmark_id || !visitor_name || !visited_date) {
-        alert("Please fill in all required fields.");
+    
+    // Kullanıcı ID'sini localStorage'dan al
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user || !user.id) {
+        alert("Kullanıcı bilgisi bulunamadı. Lütfen tekrar giriş yapın.");
+        return;
+    }
+    
+    if (!landmark_id) {
+        alert("Please select a landmark.");
         return;
     }
 
@@ -542,14 +586,13 @@ function addNotes() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             landmark_id: landmark_id,
-            visitor_name: visitor_name,
-            note: note,
-            visited_date: visited_date
+            user_id: user.id,
+            note: note
         })
     })
     .then(res => res.json())
     .then(data => {
-        alert("Note saved!");
+        alert("Note saved and landmark marked as visited!");
         resetSelection();
         fetchSavedLandmarks();
     })

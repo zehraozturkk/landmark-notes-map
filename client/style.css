@@ -20,6 +20,7 @@ body {
     justify-content: center;
     gap: 10px;
     margin-bottom: 20px;
+    flex-wrap: wrap;
 }
 
 button {
@@ -34,6 +35,29 @@ button {
 
 button:hover {
     background-color: #0056b3;
+}
+
+/* Logout button style */
+.logout-btn {
+    background-color: #dc3545;
+}
+
+.logout-btn:hover {
+    background-color: #c82333;
+}
+
+/* User info section */
+.user-info {
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    text-align: right;
+}
+
+.user-info span {
+    font-weight: bold;
+    color: #007BFF;
 }
 
 #landmarkList, #visitedList {
