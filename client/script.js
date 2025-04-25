@@ -321,6 +321,11 @@ function addLandmark() {
         return;
     }
 
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user || !user.id) {
+        alert("Kullanıcı bilgisi bulunamadı. Lütfen tekrar giriş yapın.");
+        return;
+    }
     fetch('http://localhost:3000/landmarks/adding', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -328,7 +333,8 @@ function addLandmark() {
             lat: selectedLandmark.latitude,
             lng: selectedLandmark.longitude,
             name: name,
-            category: category
+            category: category,
+            userId: user.id
         })
     })
     .then(res => res.json())
