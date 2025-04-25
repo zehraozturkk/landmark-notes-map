@@ -1,0 +1,445 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+#map {
+    height: 500px;
+    width: 100%;
+    margin: auto;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+button {
+    padding: 10px 15px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Logout button style */
+.logout-btn {
+    background-color: #dc3545;
+}
+
+.logout-btn:hover {
+    background-color: #c82333;
+}
+
+/* User info section */
+.user-info {
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    text-align: right;
+}
+
+.user-info span {
+    font-weight: bold;
+    color: #007BFF;
+}
+
+#landmarkList, #visitedList {
+    text-align: left;
+    width: 100%;
+    margin: 10px auto;
+    padding-left: 20px;
+}
+
+#landmarkList li, #visitedList li {
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#landmarkForm, #noteForm {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 20px auto;
+    max-width: 600px;
+    text-align: left;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+input[type="text"], select, textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+input[type="date"] {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+#visitedSection {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+h2, h3 {
+    color: #333;
+}
+
+h2 {
+    margin-bottom: 20px;
+}
+
+/* New styles for the update and delete buttons */
+.landmark-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.update-btn {
+    background-color: #28a745;
+    padding: 6px 12px;
+    font-size: 14px;
+}
+
+.delete-btn {
+    background-color: #dc3545;
+    padding: 6px 12px;
+    font-size: 14px;
+}
+
+.update-btn:hover {
+    background-color: #218838;
+}
+
+.delete-btn:hover {
+    background-color: #c82333;
+}
+
+/* Styles for the update form */
+.landmark-update-form {
+    width: 400px;
+    max-width: 90%;
+}
+
+.landmark-update-form h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.landmark-update-form textarea {
+    min-height: 100px;
+    margin: 10px 0;
+}
+
+.update-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+.update-buttons button:last-child {
+    background-color: #6c757d;
+}
+
+.update-buttons button:last-child:hover {
+    background-color: #5a6268;
+}
+
+/* Map popup buttons */
+.popup-btn {
+    padding: 4px 8px;
+    margin-top: 8px;
+    margin-right: 5px;
+    font-size: 12px;
+}
+
+.popup-delete {
+    background-color: #dc3545;
+}
+
+.popup-delete:hover {
+    background-color: #c82333;
+}
+
+/* Landmark info styles */
+.landmark-info {
+    flex: 1;
+    padding-right: 10px;
+}
+
+/* style.css'e eklenecek */
+
+.compact-filter {
+    margin: 10px 0;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.compact-filter select {
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 12px;
+}
+
+/* Ziyaret edilmiş ve edilmemiş landmark'lar için stil */
+.landmark-visited {
+    border-left: 4px solid #52c41a;
+}
+
+.landmark-not-visited {
+    border-left: 4px solid #f5222d;
+}
+
+/* Landmark listesi stilini güncelle */
+#visitedList li {
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.landmark-info {
+    flex: 1;
+    padding-right: 10px;
+}
+
+.landmark-note {
+    font-size: 13px;
+    color: #666;
+    margin-top: 5px;
+}
+/* Add these styles for the search feature */
+.search-container {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 0 0 20px 0;
+    text-align: left;
+}
+
+.search-container h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.search-input {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.search-input input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.search-input button {
+    background-color: #1890ff;
+    padding: 10px 15px;
+}
+
+#searchResult {
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 5px;
+    border: 1px solid #e8e8e8;
+    margin-top: 10px;
+}
+
+.search-result-item {
+    padding: 10px;
+    background-color: #f0f8ff;
+    border-radius: 5px;
+}
+
+.search-result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.search-result-item h4 {
+    margin: 0;
+    color: #1890ff;
+}
+
+.close-btn {
+    background-color: transparent;
+    color: #999;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 2px 5px;
+    line-height: 1;
+    border-radius: 50%;
+}
+
+.close-btn:hover {
+    background-color: #f5f5f5;
+    color: #666;
+}
+
+.search-error {
+    color: #f5222d;
+    text-align: center;
+    font-weight: bold;
+}
+
+.goto-btn {
+    background-color: #1890ff;
+    padding: 6px 12px;
+    font-size: 14px;
+}
+
+.goto-btn:hover {
+    background-color: #096dd9;
+}
+
+/* Style for search result marker */
+.search-result-marker {
+    z-index: 1000 !important;
+}
+
+/* Ziyaret geçmişi stillerini style.css'e ekleyin */
+
+.visit-history-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    max-width: 90%;
+    max-height: 80vh;
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+.visit-history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.visit-history-header h3 {
+    margin: 0;
+    color: #1890ff;
+}
+
+.visit-count {
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.visit-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.visit-table th, 
+.visit-table td {
+    border: 1px solid #eee;
+    padding: 10px;
+    text-align: left;
+}
+
+.visit-table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+.visit-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.visit-table tr:hover {
+    background-color: #f0f8ff;
+}
+
+.no-visits {
+    color: #999;
+    text-align: center;
+    padding: 20px;
+    font-style: italic;
+}
+
+.loading-indicator {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
+.error-message {
+    color: #ff4d4f;
+    padding: 10px;
+    background-color: #fff2f0;
+    border-radius: 4px;
+}
+
+/* Ziyaret geçmişi butonu için stil */
+.history-btn {
+    background-color: #722ed1;
+    padding: 6px 12px;
+    font-size: 14px;
+}
+
+.history-btn:hover {
+    background-color: #531dab;
+}
+
+.popup-history {
+    background-color: #722ed1;
+}
+
+.popup-history:hover {
+    background-color: #531dab;
+}
