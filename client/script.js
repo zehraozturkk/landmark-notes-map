@@ -48,7 +48,7 @@ loginForm.addEventListener('submit', async (e) => {
     const password = document.getElementById('login-password').value;
 
     try {
-        const response = await fetch(`${import.meta.env.VITE_JS_APP_BACKEND_BASEURL}/user/login`, {
+        const response = await fetch(`${window.BACKEND_URL}/user/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })
@@ -59,7 +59,7 @@ loginForm.addEventListener('submit', async (e) => {
         if (response.ok) {
             alert('Giriş başarılı!');
             localStorage.setItem('user', JSON.stringify(data.user));
-            window.location.href = '/client'; // veya anasayfa sayfanızın doğru URL'sini buraya yazın
+            window.location.href = 'map.html'; // veya anasayfa sayfanızın doğru URL'sini buraya yazın
         } else {
             handleAuthErrors(loginError, data.error);
         }
@@ -79,7 +79,7 @@ registerForm.addEventListener('submit', async (e) => {
     const password = document.getElementById('register-password').value;
 
     try {
-        const response = await fetch(`${import.meta.env.VITE_JS_APP_BACKEND_BASEURL}/user/register`, {
+        const response = await fetch(`${window.BACKEND_URL}/user/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name, surname, email, password })

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Landmark Creator</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="map.css">
 </head>
 <body>
     <h2>Landmark Management System</h2>
@@ -88,6 +88,9 @@
     <ul id="landmarkList"></ul>
     
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="./script.js"></script>
+    <script>
+        window.BACKEND_URL = "http://localhost:3000";
+      </script>
+    <script src="./map.js"></script>
 </body>
 </html>

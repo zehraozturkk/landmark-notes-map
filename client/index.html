@@ -26,6 +26,8 @@
                 <div class="input-group">
                     <label for="password"><i class="fas fa-lock"></i> Şifre:</label>
                     <input type="password" id="login-password" name="password" placeholder="Enter your password" required>
+                    <span class="password-toggle" onclick="togglePasswordVisibility('login-password', 'login-password-toggle-icon')">
+                        <i id="login-password-toggle-icon" class="fas fa-eye"></i>
                     </span>
                 </div>
                 <button type="submit" class="auth-button">Log in</button>
@@ -63,6 +65,9 @@
         </div>
     </div>
 
+    <script>
+        window.BACKEND_URL = "http://localhost:3000";
+    </script>
     <script src="script.js"></script>
 </body>
 </html>

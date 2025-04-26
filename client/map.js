@@ -157,7 +157,7 @@ function saveVisitingPlan() {
     }
     
     // Send to server
-    fetch(`${import.meta.env.VITE_JS_APP_BACKEND_BASEURL}/create_plan`, {
+    fetch(`${window.BACKEND_URL}/create_plan`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -290,7 +290,7 @@ function submitUpdate(id) {
         return;
     }
     
-    fetch(`${import.meta.env.VITE_JS_APP_BACKEND_BASEURL}/landmarks/${id}`, {
+    fetch(`${window.BACKEND_URL}/landmarks/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -318,7 +318,7 @@ function deleteLandmark(id) {
         return;
     }
     
-    fetch(`${import.meta.env.VITE_JS_APP_BACKEND_BASEURL}/landmarks/${id}`, {
+    fetch(`${window.BACKEND_URL}/landmarks/${id}`, {
         method: 'DELETE'
     })
     .then(res => res.json())
@@ -356,7 +356,7 @@ function addLandmark() {
 
     const user = JSON.parse(localStorage.getItem("user"));
     
-    fetch(`${import.meta.env.VITE_JS_APP_BACKEND_BASEURL}/landmarks/adding`, {
+    fetch(`${window.BACKEND_URL}/landmarks/adding`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -394,14 +394,14 @@ function showVisitedLandmarks() {
 
     // Fallback to the original method if the new endpoint fails
     // First, try to get all landmarks
-    fetch(`${import.meta.env.VITE_JS_APP_BACKEND_BASEURL}/landmarks`)
+    fetch(`${window.BACKEND_URL}/landmarks`)
         .then(res => res.json())
         .then(landmarksData => {
             console.log("All Landmarks:", landmarksData);
             allLandmarks = landmarksData;
             
             // Then try to get visited landmarks using the original endpoint
-            return fetch(`${import.meta.env.VITE_JS_APP_BACKEND_BASEURL}/visited_landmarks`)
+            return fetch(`${window.BACKEND_URL}/visited_landmarks`)
                 .then(res => res.json())
                 .then(visitedData => {
                     console.log("Visit Landmarks:", visitedData);
@@ -581,7 +581,7 @@ function addNotes() {
         return;
     }
 
-    fetch(`${import.meta.env.VITE_JS_APP_BACKEND_BASEURL}/visited_landmarks/notes`, {
+    fetch(`${window.BACKEND_URL}/visited_landmarks/notes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -609,7 +609,7 @@ function sendLandmarks() {
         return;
     }
 
-    fetch(`${import.meta.env.VITE_JS_APP_BACKEND_BASEURL}/books`, { // This endpoint doesn't match your backend
+    fetch(`${window.BACKEND_URL}/books`, { // This endpoint doesn't match your backend
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -624,7 +624,7 @@ function sendLandmarks() {
 function fetchSavedLandmarks() {
     console.log("Fetching saved landmarks...");
     
-    fetch(`${import.meta.env.VITE_JS_APP_BACKEND_BASEURL}/landmarks`)
+    fetch(`${window.BACKEND_URL}/landmarks`)
         .then(res => res.json())
         .then(data => {
             savedLandmarks = data;
@@ -656,6 +656,7 @@ function updateLandmarkSelect() {
         select.appendChild(option);
     });
 }
+
 // Add this function to handle landmark search by ID
 function searchLandmarkById() {
     const landmarkId = document.getElementById("landmarkIdSearch").value;
@@ -677,7 +678,7 @@ function searchLandmarkById() {
     }
     
     // Landmark'ı ID'ye göre getir
-    fetch(`${import.meta.env.VITE_JS_APP_BACKEND_BASEURL}/landmarks/${landmarkId}`)
+    fetch(`${window.BACKEND_URL}/landmarks/${landmarkId}`)
         .then(res => {
             if (!res.ok) {
                 throw new Error("Landmark bulunamadı");
@@ -808,7 +809,7 @@ function viewVisitHistory(landmarkId) {
     document.body.appendChild(historyContainer);
     
     // Ziyaret geçmişini sunucudan al
-    fetch(`${import.meta.env.VITE_JS_APP_BACKEND_BASEURL}/visited_landmarks/${landmarkId}`)
+    fetch(`${window.BACKEND_URL}/visited_landmarks/${landmarkId}`)
         .then(res => {
             if (!res.ok) {
                 throw new Error("there is no visit history");
@@ -880,4 +881,23 @@ function closeVisitHistory() {
     if (historyContainer) {
         historyContainer.remove();
     }
+}
+
+// User info display
+function displayUserInfo() {
+    const userInfoDiv = document.getElementById("user-info");
+    if (!userInfoDiv) return;
+    
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user) return;
+    
+    userInfoDiv.innerHTML = `
+        <p>Welcome, <span>${user.name} ${user.surname}</span> | <span>${user.email}</span></p>
+    `;
+}
+
+// Logout function
+function logoutUser() {
+    localStorage.removeItem("user");
+    window.location.href = "/";
 }
