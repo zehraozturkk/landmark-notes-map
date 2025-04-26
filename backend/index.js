@@ -1,6 +1,5 @@
 // import express from "express"  bunu kullanmak istersek package jsona type: module eklemeliyiz
 const express = require('express')
-const db = require("./config/db")
 const cors = require("cors")
 const user_operations = require("./user-operations")
 const landmarks_operations = require("./landmark-operations")
