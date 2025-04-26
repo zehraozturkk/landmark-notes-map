@@ -7,7 +7,11 @@ const landmarks_operations = require("./landmark-operations")
 
 const app = express()
 app.use(express.json())
-app.use(cors());
+app.use(cors({
+    origin: 'https://landmark-notes-map-s5tu.vercel.app',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization']
+  }));
 
 app.use(express.static('client'));
 
