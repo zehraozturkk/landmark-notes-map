@@ -51,7 +51,10 @@ router.post("/landmarks/adding", (req,res)=>{
 router.get("/landmarks", (req,res)=>{
     const q = "SELECT * FROM landmarks"
     db.query(q, (err, data)=>{
-        if(err) return res.json("err")
+        if(err) {
+            console.error("Database error:", err);
+            return res.status(500).json({ error: err.message || "Database connection failed" });
+        }
         return res.json(data)
     })
 })
