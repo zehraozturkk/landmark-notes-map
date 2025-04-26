@@ -1,11 +1,11 @@
 const express = require('express')
 const db = require("./config/db")
-
+const router = express.Router();
 const app = express()
 app.use(express.json())
 
 
-app.post("/landmarks/adding", (req,res)=>{
+router.post("/landmarks/adding", (req,res)=>{
     console.log("Gelen veri:", req.body);
     const lat = parseFloat(req.body.lat);
     const lng = parseFloat(req.body.lng);
@@ -48,7 +48,7 @@ app.post("/landmarks/adding", (req,res)=>{
     });
 })
 
-app.get("/landmarks", (req,res)=>{
+router.get("/landmarks", (req,res)=>{
     const q = "SELECT * FROM landmarks"
     db.query(q, (err, data)=>{
         if(err) return res.json("err")
@@ -57,7 +57,7 @@ app.get("/landmarks", (req,res)=>{
 })
 
 
-app.get("/landmarks/:id", (req,res) => {
+router.get("/landmarks/:id", (req,res) => {
     const {id} = req.params;
     const q = "SELECT * FROM landmarks WHERE id = ?"
 
@@ -69,7 +69,7 @@ app.get("/landmarks/:id", (req,res) => {
 
 });
 
-app.put("/landmarks/:id", (req,res)=>{
+router.put("/landmarks/:id", (req,res)=>{
     const landmarkId = req.params.id;
 
     const q = "UPDATE landmarks SET `name` = ?, `note` = ?, `category`= ?  WHERE id = ?"
@@ -88,7 +88,7 @@ app.put("/landmarks/:id", (req,res)=>{
 
 });
 
-app.delete("/landmarks/:id", (req,res)=>{
+router.delete("/landmarks/:id", (req,res)=>{
     const landmarkId = req.params.id;
 
     const q = "DELETE FROM landmarks WHERE id = ?"
@@ -127,7 +127,7 @@ app.delete("/landmarks/:id", (req,res)=>{
 //     })
 // })
 
-app.post("/visited_landmarks/notes", (req,res)=>{  
+router.post("/visited_landmarks/notes", (req,res)=>{  
     const {landmark_id, user_id, note} = req.body;
     const visited_date = new Date(); // Bugünün tarihini otomatik olarak al
 
@@ -175,7 +175,7 @@ app.post("/visited_landmarks/notes", (req,res)=>{
     });
 })
 
-app.get("/visited_landmarks", (req,res)=>{
+router.get("/visited_landmarks", (req,res)=>{
     const q = "SELECT lm.lat, lm.lng, lm.note ,vlm.landmark_id, vlm.visited_date, vlm.visitor_name FROM visited_landmarks as vlm JOIN landmarks as lm ON lm.id = vlm.landmark_id"
     db.query(q, (err, data)=>{
         if(err) return res.json({error: err.message})
@@ -184,7 +184,7 @@ app.get("/visited_landmarks", (req,res)=>{
 })
 
 
-app.get("/visited_landmarks/:id", (req,res) => {
+router.get("/visited_landmarks/:id", (req,res) => {
     const {id} = req.params;
 
     const q = "SELECT lm.lat, lm.lng, lm.note ,vlm.landmark_id, vlm.visited_date, vlm.visitor_name FROM visited_landmarks as vlm JOIN landmarks as lm ON lm.id = vlm.landmark_id WHERE lm.id = ?"
@@ -205,7 +205,7 @@ app.get("/visited_landmarks/:id", (req,res) => {
 
 // visiting plan
 
-app.post("/create_plan", (req,res)=>{
+router.post("/create_plan", (req,res)=>{
     const { plan_name, landmarks } = req.body;
 
     if (!plan_name || !Array.isArray(landmarks) || landmarks.length === 0) {
@@ -241,4 +241,4 @@ app.post("/create_plan", (req,res)=>{
 
 })
 
-module.exports = app;
+module.exports = router;

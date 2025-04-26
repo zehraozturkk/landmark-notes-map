@@ -1,6 +1,7 @@
 // import express from "express"  bunu kullanmak istersek package jsona type: module eklemeliyiz
 const express = require('express')
 const db = require("./config/db")
+const router = express.Router();
 
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
@@ -9,7 +10,7 @@ const app = express()
 app.use(express.json())
 
 
-app.post("/register", (req,res)=>{
+router.post("/register", (req,res)=>{
 
     const salt = bcrypt.genSaltSync(10);
     const passwordHash  = bcrypt.hashSync(req.body.password, salt);
@@ -30,7 +31,7 @@ app.post("/register", (req,res)=>{
     })
 })
 
-app.post("/login", (req,res)=>{
+router.post("/login", (req,res)=>{
 
     const {email, password} = req.body
 
@@ -67,14 +68,14 @@ app.post("/login", (req,res)=>{
     });
 })
 
-app.post("/logout", (req, res) => {
+router.post("/logout", (req, res) => {
     // Since authentication is handled client-side with localStorage,
     // we just return a success message
     res.status(200).json({ message: "User has been logged out" });
 });
 
 
-app.get("/:id", (req, res) => {
+router.get("/:id", (req, res) => {
     const userId = req.params.id;
     
     const q = "SELECT id, name, surname, email FROM users WHERE id = ?";
@@ -88,4 +89,4 @@ app.get("/:id", (req, res) => {
     });
 });
 
-module.exports = app;
+module.exports = router;

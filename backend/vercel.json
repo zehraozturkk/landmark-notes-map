@@ -8,12 +8,11 @@
       }
     ],
     "routes": [
-      { "src": "/landmarks", "dest": "/index.js" },
+      { "src": "/user/(.*)", "dest": "/index.js" },
       { "src": "/landmarks/(.*)", "dest": "/index.js" },
-      { "src": "/user/login", "dest": "/index.js" },
-      { "src": "/user/register", "dest": "/index.js" },
-      { "src": "/visited_landmarks", "dest": "/index.js" },
+      { "src": "/landmarks", "dest": "/index.js" },
       { "src": "/visited_landmarks/(.*)", "dest": "/index.js" },
+      { "src": "/visited_landmarks", "dest": "/index.js" },
       { "src": "/create_plan", "dest": "/index.js" },
       { "src": "/(.*)", "dest": "/index.js" }
     ]
